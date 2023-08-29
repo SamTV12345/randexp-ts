@@ -1,52 +1,70 @@
-const ret    = require('ret');
-const DRange = require('drange');
-const types  = ret.types;
+import ret, {Root, types} from 'ret';
+import DRange from 'drange';
 
 
-module.exports = class RandExp {
+// @ts-ignore
+interface Token extends Root {
+  not: any;
+  to: number;
+  set: Token[];
+  from: number;
+  max: number;
+  min: number;
+  stack: any;
+  value: any;
+  options: any;
+  groupNumber: number;
+  remember: Boolean;
+  notFollowedBy: Boolean;
+  followedBy: Boolean;
+  type: types
+}
+
+export default class RandExp {
+  readonly ignoreCase: string | boolean | undefined;
+  multiline: string | boolean | undefined;
+  public max: number | undefined;
+  private _range: any;
+  private readonly tokens: Token
   /**
    * @constructor
-   * @param {RegExp|string} regexp
-   * @param {string} m
+   * @param pattern
+   * @param flags
    */
-  constructor(regexp, m) {
-    this._setDefaults(regexp);
-    if (regexp instanceof RegExp) {
-      this.ignoreCase = regexp.ignoreCase;
-      this.multiline = regexp.multiline;
-      regexp = regexp.source;
+  constructor(pattern: string | RegExp, flags?: string) {
+    this._setDefaults(pattern);
+    if (pattern instanceof RegExp) {
+      this.ignoreCase = pattern.ignoreCase;
+      this.multiline = pattern.multiline;
+      pattern = pattern.source;
 
-    } else if (typeof regexp === 'string') {
-      this.ignoreCase = m && m.indexOf('i') !== -1;
-      this.multiline = m && m.indexOf('m') !== -1;
     } else {
-      throw Error('Expected a regexp or string');
+        this.ignoreCase = flags && flags.indexOf('i') !== -1;
+        this.multiline = flags && flags.indexOf('m') !== -1;
     }
 
-    this.tokens = ret(regexp);
+    this.tokens = ret(pattern) as Token;
   }
 
 
   /**
    * Checks if some custom properties have been set for this regexp.
    *
-   * @param {RandExp} randexp
    * @param {RegExp} regexp
    */
-  _setDefaults(regexp) {
+  _setDefaults(regexp: string | RegExp) {
     // When a repetitional token has its max set to Infinite,
     // randexp won't actually generate a random amount between min and Infinite
     // instead it will see Infinite as min + 100.
-    this.max = regexp.max != null ? regexp.max :
-      RandExp.prototype.max != null ? RandExp.prototype.max : 100;
+    this.max = typeof regexp !== "string" && "max" in regexp ? regexp.max as number : RandExp.prototype.max != null ? RandExp.prototype.max : 100 as number;
 
     // This allows expanding to include additional characters
     // for instance: RandExp.defaultRange.add(0, 65535);
-    this.defaultRange = regexp.defaultRange ?
-      regexp.defaultRange : this.defaultRange.clone();
+    this.defaultRange = typeof regexp !== "string" && "defaultRange" in regexp ?
+      regexp.defaultRange as DRange : this.defaultRange.clone();
 
-    if (regexp.randInt) {
-      this.randInt = regexp.randInt;
+    if (typeof regexp !== "string"&&"randInt" in regexp && regexp.randInt) {
+      this.randInt = regexp.randInt as (a: number, b: number) => number;
     }
   }
 
@@ -56,7 +74,7 @@ module.exports = class RandExp {
    *
    * @return {string}
    */
-  gen() {
+  gen(): string {
     return this._gen(this.tokens, []);
   }
 
@@ -68,7 +86,7 @@ module.exports = class RandExp {
    * @param {Array.<string>} groups
    * @return {string}
    */
-  _gen(token, groups) {
+  _gen(token: Token, groups:(string|null)[]):string {
     let stack, str, n, i, l, code, expandedSet;
 
     switch (token.type) {
@@ -107,7 +125,7 @@ module.exports = class RandExp {
       case types.REPETITION:
         // Randomly generate number between min and max.
         n = this.randInt(token.min,
-          token.max === Infinity ? token.min + this.max : token.max);
+          token.max === Infinity ? token.min + this.max! : token.max);
 
         str = '';
         for (i = 0; i < n; i++) {
@@ -124,6 +142,7 @@ module.exports = class RandExp {
           this._toOtherCase(token.value) : token.value;
         return String.fromCharCode(code);
     }
+    return ''
   }
 
 
@@ -134,7 +153,7 @@ module.exports = class RandExp {
    * @param {number} code
    * @return {number}
    */
-  _toOtherCase(code) {
+  _toOtherCase(code:number): number {
     return code + (97 <= code && code <= 122 ? -32 :
       65 <= code && code <= 90  ?  32 : 0);
   }
@@ -145,7 +164,7 @@ module.exports = class RandExp {
    *
    * @return {boolean}
    */
-  _randBool() {
+  _randBool(): boolean {
     return !this.randInt(0, 1);
   }
 
@@ -153,10 +172,10 @@ module.exports = class RandExp {
   /**
    * Randomly selects and returns a value from the array.
    *
-   * @param {Array.<Object>} arr
+   * @param {Array.<number>} arr
    * @return {Object}
    */
-  _randSelect(arr) {
+  _randSelect(arr: Array<number>|DRange): number {
     if (arr instanceof DRange) {
       return arr.index(this.randInt(0, arr.length - 1));
     }
@@ -171,10 +190,10 @@ module.exports = class RandExp {
    * @param {Object} token
    * @return {DiscontinuousRange}
    */
-  _expand(token) {
-    if (token.type === ret.types.CHAR) {
+  _expand(token:Token) {
+    if (token.type === types.CHAR) {
       return new DRange(token.value);
-    } else if (token.type === ret.types.RANGE) {
+    } else if (token.type === types.RANGE) {
       return new DRange(token.from, token.to);
     } else {
       let drange = new DRange();
@@ -207,7 +226,7 @@ module.exports = class RandExp {
    * @param {number} b
    * @return {number}
    */
-  randInt(a, b) {
+  randInt(a: number, b:number): number {
     return a + Math.floor(Math.random() * (1 + b - a));
   }
 
@@ -215,7 +234,7 @@ module.exports = class RandExp {
   /**
    * Default range of characters to generate from.
    */
-  get defaultRange() {
+  get defaultRange():DRange {
     return this._range = this._range || new DRange(32, 126);
   }
 
@@ -228,34 +247,27 @@ module.exports = class RandExp {
    *
    * Enables use of randexp with a shorter call.
    *
-   * @param {RegExp|string| regexp}
+   * @param regexp
    * @param {string} m
    * @return {string}
    */
-  static randexp(regexp, m) {
-    let randexp;
+  static randexp(regexp: RegExp|string, m?: string) {
+    let randexp: RandExp;
     if(typeof regexp === 'string') {
       regexp = new RegExp(regexp, m);
     }
 
-    if (regexp._randexp === undefined) {
+    if (!("_randexp" in regexp)||regexp._randexp === undefined) {
       randexp = new RandExp(regexp, m);
-      regexp._randexp = randexp;
+      Object.assign(randexp, {
+        _randexp: randexp,
+      })
     } else {
-      randexp = regexp._randexp;
-      randexp._setDefaults(regexp);
+        randexp = regexp._randexp as RandExp;
+        randexp._setDefaults(regexp);
     }
     return randexp.gen();
   }
 
-
-  /**
-   * Enables sugary /regexp/.gen syntax.
-   */
-  static sugar() {
-    /* eshint freeze:false */
-    RegExp.prototype.gen = function() {
-      return RandExp.randexp(this);
-    };
-  }
+  static isNotString = (obj: any) => typeof obj !== 'string';
 };

@@ -1,8 +1,11 @@
-const assert  = require('assert');
-const RandExp = require('..');
-
-
-const genMaxChar = (re) => {
+import RandExp from "../lib/randexp";
+import DRange from "drange";
+import { describe, it } from 'vitest'
+import assert from 'assert'
+interface ExtendedRegex extends RegExp{
+  defaultRange?: DRange;
+}
+const genMaxChar = (re: RandExp) => {
   let output = re.gen();
   let maxChar = 0;
   for (let i = 0; i < output.length; i++) {
@@ -26,10 +29,10 @@ describe('Modify Range', () => {
 
   describe('From a regexp instance', () => {
     it('Should generate unicode when we expand its range', () => {
-      let r = /[\d\D]{100}/;
-      r.defaultRange = RandExp.prototype.defaultRange.clone();
-      r.defaultRange.subtract(0, 126);
-      r.defaultRange.add(127, 65535);
+      let r:ExtendedRegex = /[\d\D]{100}/;
+      r.defaultRange = RandExp.prototype.defaultRange.clone()
+      r.defaultRange!.subtract(0, 126);
+      r.defaultRange!.add(127, 65535);
       let re = new RandExp(r);
       let maxChar = genMaxChar(re);
       assert.ok(maxChar >= 127, 'non-ascii characters should have been generated');

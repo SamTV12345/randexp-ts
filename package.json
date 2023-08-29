@@ -1,6 +1,7 @@
 {
-  "name": "aibees-randexp",
+  "name": "randexp-ts",
   "description": "Create random strings that match a given regular expression.",
+  "type": "module",
   "keywords": [
     "regex",
     "regexp",
@@ -14,46 +15,47 @@
     "type": "git",
     "url": "git://github.com/shakil-aibees/aibees-randexp.git"
   },
-  "bugs":{
-    "url" : "https://github.com/shakil-aibees/aibees-randexp/issues",
-    "email" :"shakil@ai-bees.io"
+  "bugs": {
+    "url": "https://github.com/shakil-aibees/aibees-randexp/issues",
+    "email": "shakil@ai-bees.io"
   },
   "author": {
-    "name" : "Shakil Hossain",
-    "email" : "shakil@ai-bees.io",
-    "url" : "https://github.com/shakil-aibees"
+    "name": "Shakil Hossain",
+    "email": "shakil@ai-bees.io",
+    "url": "https://github.com/shakil-aibees"
   },
-  "main": "./lib/randexp.js",
-  "files": [
-    "lib",
-    "types/index.d.ts"
-  ],
+  "main": "./dist/randexp-ts.js",
   "scripts": {
     "version": "gulp build && git add build",
     "test": "istanbul cover node_modules/.bin/_mocha -- test/*-test.js",
-    "dtslint": "dtslint types --onlyTestTsNext"
+    "dtslint": "dtslint types --onlyTestTsNext",
+    "build": "vite build"
   },
   "directories": {
-    "lib": "./lib"
+    "lib": "./dist"
   },
   "dependencies": {
     "drange": "^2.0.1",
-    "ret": "^0.4.2"
+    "ret": "^0.5.0"
   },
   "devDependencies": {
+    "@types/assert": "^1.5.6",
     "browserify": "^16.2.3",
     "gulp": "^4.0.0",
     "gulp-header": "^2.0.1",
     "gulp-insert": "^0.5.0",
     "gulp-uglify": "^3.0.0",
+    "vitest": "^0.34.3",
     "istanbul": "*",
-    "mocha": "^7.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "vinyl-source-stream": "^2.0.0",
+    "vite": "^4.4.9",
+    "blue-tape": "^1.0.0"
   },
   "engines": {
     "node": ">=8"
   },
-  "license": "MIT",
-  "types": "./types"
+  "license": "MIT"
 }

@@ -1,12 +1,12 @@
-const assert  = require('assert');
-const RandExp = require('..');
+import RandExp from "../lib/randexp";
+import { expect, describe, it } from 'vitest'
 
 
 // This is a simple "good enough" PRNG.
 const initialSeed = Math.random() * Math.pow(2, 32) + Date.now();
 const prng = () => {
   let seed = initialSeed;
-  return (a, b) => {
+  return (a:number, b:number) => {
     seed = Math.pow(seed, 2) % 94906249;
     return seed % (1 + b - a) + a;
   };
@@ -28,11 +28,11 @@ describe('Modify PRNG', () => {
     RandExp.prototype.randInt = originalRandInt;
 
     let r = /.{100}/;
-    r.randInt = prng();
+    Object.assign(r, {randInt: prng()});
     let d = RandExp.randexp(r);
 
-    assert.equal(a, b, 'same seed should produce same output');
-    assert.equal(a, c, 'same seed should produce same output');
-    assert.equal(a, d, 'same seed should produce same output');
+    expect(a).toBe(b) // same seed should produce same output
+    expect(a).toBe(c)// 'same seed should produce same output');
+    expect(a).toBe(d) //'same seed should produce same output');
   });
 });

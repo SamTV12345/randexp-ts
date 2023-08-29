@@ -1,5 +1,8 @@
-/*jshint maxlen:false */
-module.exports = {
+type Test = {
+  [key:string]:any
+}
+
+export const tests:Test = {
   'Pattern Flags': {
     'i': {
       regexp: /hey there/i,

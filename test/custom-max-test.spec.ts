@@ -1,5 +1,6 @@
-const assert  = require('assert');
-const RandExp = require('..');
+import assert from 'assert'
+import RandExp from '../lib/randexp'
+import { expect,afterEach, describe, it } from 'vitest'
 
 
 describe('Modify max', () => {
@@ -7,19 +8,19 @@ describe('Modify max', () => {
     let re = new RandExp(/.*/);
     re.max = 0;
     let output = re.gen();
-    assert.equal(output, '');
+    assert.strictEqual(output, '');
 
     let r = /.*/;
-    r.max = 0;
+    Object.assign(r, {max: 0})
     output = RandExp.randexp(r);
-    assert.equal(output, '');
+    assert.strictEqual(output, '');
 
-    after(() => {
+    afterEach(() => {
       delete RandExp.prototype.max;
     });
     RandExp.prototype.max = 0;
     re = new RandExp(/.*/);
     output = re.gen();
-    assert.equal(output, '');
+    expect(output).toBe('');
   });
 });
