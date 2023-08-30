@@ -1,19 +1,21 @@
 import {defineConfig} from "vite";
 import dts from "vite-plugin-dts";
-import commonjs from "vite-plugin-commonjs";
+import commonjs from '@rollup/plugin-commonjs';
 
 export default defineConfig({
     build: {
         lib: {
             entry:  'lib/randexp.ts',
-            name: 'randexp'
+            name: 'randexp',
+            fileName: (format) => `[name].${format === "cjs" ? "c" : "m"}js`,
+            formats: ["cjs"],
         },
         rollupOptions:{
-            output: {
+            output:{
                 preserveModules: false,
                 dir: './dist',
                 format: 'cjs',
-            },
+            }
         }
     },
     test:{

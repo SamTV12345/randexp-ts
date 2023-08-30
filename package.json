@@ -10,7 +10,7 @@
     "random",
     "test"
   ],
-  "version": "1.0.2",
+  "version": "1.0.5",
   "homepage": "http://shakil-aibees.github.io/aibees-randexp/",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
     "email": "shakil@ai-bees.io",
     "url": "https://github.com/shakil-aibees"
   },
-  "main": "./dist/randexp-ts.js",
+  "main": "./dist/randexp.cjs",
   "scripts": {
     "version": "gulp build && git add build",
     "test": "istanbul cover node_modules/.bin/_mocha -- test/*-test.js",
@@ -42,6 +42,7 @@
   "devDependencies": {
     "vite-plugin-dts": "^3.5.3",
     "@types/assert": "^1.5.6",
+    "@rollup/plugin-commonjs": "^25.0.4",
     "browserify": "^16.2.3",
     "gulp": "^4.0.0",
     "vite-plugin-commonjs": "^0.9.0",
